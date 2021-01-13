@@ -1,163 +1,90 @@
-// A 9*9 sudoku solver
-#include<bits/stdc++.h>
-#include<fstream>
+
+#include <iostream>
+#define N 9
 using namespace std;
-ifstream infile; 
-ofstream outfile;
-vector<vector<int>> matrix;
-int count=0;
-void zero_count()
-{
-    count=0;
-    for(int i=0; i<9; i++) {
-        for(int j=0; j<9; j++) {
-            if(matrix[i][j]==0) {
-                count++;
-            }
-        }
-    }
-}
-
-void input() {
-    for (int i = 0; i < 9; i++) {
-        vector<int> temp;
-        for (int j = 0; j < 9; j++) { 
-            int val;
-            infile>>val;
-            temp.push_back(val);
-        }    
-        matrix.push_back(temp);
-        temp.clear();
-    }
-}
-
-void display() {
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
-            outfile << matrix[i][j] <<" ";
-        }    
-        outfile << endl;
-    }
-}
-
-bool check_row_col(int key, int row, int col) {
-    for(int i=0; i<9; i++) {
-        if(row!=i and key==matrix[i][col]) 
-            { 
-            return false;
-             }
-        if(col!=i and key==matrix[row][i]) 
-            { 
-            return false; 
-            }
-    }
-    return true;
-}
-
-bool check_matrix(int key, int row, int col) {
-    int lr,lc,ur,uc;
-    if(row>=0 and row<=2) 
-        { 
-        lr=0; ur=2; 
-        }
-    else if(row>=3 and row<=5) 
-        { 
-        lr=3; ur=5; 
-        }
-    else {
-        lr=6; ur=8; 
-    }
-    
-    if(col>=0 and col<=2) { 
-        lc=0; uc=2; 
-    }
-    else if(col>=3 and col<=5) { 
-        lc=3; uc=5; 
-    }
-    else {
-         lc=6; uc=8; 
-    }
-    
-    for(int i=lr; i<=ur; i++) {
-        for(int j=lc; j<=uc; j++) {
-            if( i!=row and j!=col)
-                {
-                if(key==matrix[i][j]) 
-                { 
-                    return false; 
-                }
-            } 
-        }
-    }
-    return true;
-}
-
-bool check() {
-    for(int i=0; i<9; i++) {
-        for(int j=0; j<9; j++) 
-            {
-            if(matrix[i][j]!=0 and !check_matrix(matrix[i][j],i,j) and !check_row_col(matrix[i][j],i,j) ) 
-           {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-bool isSafe(int key,int row, int col ) 
-    {
-    if(check_matrix(key, row, col) and check_row_col(key,row,col))
-        { 
-        return true;
-        }
+int grid[N][N] = {
+    {5, 3, 0, 0, 7, 0, 0, 0, 0},
+    {6, 0, 0, 1, 9, 5, 0, 0, 0},
+    {0, 9, 8, 0, 0, 0, 0, 6, 0},
+    {8, 0, 0, 0, 6, 0, 0, 0, 3},
+    {4, 0, 0, 8, 0, 3, 0, 0, 1},
+    {7, 0, 0, 0, 2, 0, 0, 0, 6},
+    {0, 6, 0, 0, 0, 0, 2, 8, 0},
+    {0, 0, 0, 4, 1, 9, 0, 0, 5},
+    {0, 0, 0, 0, 8, 0, 0, 7, 9}
+};
+bool isPresentInCol(int col, int num){ //check whether num is present in col or not
+    for (int row = 0; row < N; row++)
+        if(grid[row][col] == num)
+            return true;
     return false;
 }
-/
-void sudoku(int cr, int cc) 
-    {
-     for(int i=0; i<9; i++) {
-        for(int j=0; j<9; j++) {
-            if(matrix[i][j]==0)
-            {
-                    for(int ct=1; ct<=9; ct++) 
-                    {
-                        if( isSafe(ct,i,j)) 
-                        {
-                            matrix[i][j]=ct;
-                            sudoku(i,j+1);
-                            matrix[i][j]=0;
-                        }
-                    }
-                if(matrix[i][j]==0)
-                    {
-                        // outfile<< i<< " "<<j <<endl;
-                        return ;
-                    }
-            }    
+bool isPresentInRow(int row, int num){ //check whether num is present in row or not
+    for(int col = 0; col < N; col++)
+        if(grid[row][col] == num)
+            return true;
+    return false;
+}
+bool isPresentInBox(int boxStartRow, int boxStartCol, int num){
+//check whether num is present in 3x3 box or not
+    for(int row = 0; row < 3; row++)
+        for(int col = 0; col < 3; col++)
+            if(grid[row+boxStartRow][col+boxStartCol] == num)
+                return true;
+    return false;
+}
+void sudokuGrid(){ //print the sudoku grid after solve
+    for (int row = 0; row < N; row++){
+        if(row == 0){
+            cout << ' ';
+            for(int i = 0; i<N; i++)
+                cout << "---";
+            cout << endl;
         }
-    }
-    zero_count();
-    
-    if(count==0) {
-        display();
-        return ;
+        for (int col = 0; col < N; col++){
+            if(col == 0 || col == 3 || col == 6)
+                cout << " | ";
+            cout << grid[row][col] <<" ";
+            if(col == 8)
+                cout << " | ";
+        }
+        if(row == 2 || row == 5 || row == 8){
+            cout << endl << ' ';
+            for(int i = 0; i<N; i++)
+                cout << "---";
+        }
+        cout << endl;
     }
 }
-
-int main() {
-    infile.open("input.txt",ios::in); 
-    outfile.open("output.txt",ios::out);
-    input();
-    
-    if(!check()) {
-        outfile << "Invalid Input"<<endl;
+bool findEmptyPlace(int &row, int &col){ //get empty location and update row and column
+    for (row = 0; row < N; row++)
+        for (col = 0; col < N; col++)
+            if (grid[row][col] == 0) //marked with 0 is empty
+                return true;
+    return false;
+}
+bool isValidPlace(int row, int col, int num){
+    //when item not found in col, row and current 3x3 box
+    return !isPresentInRow(row, num) && !isPresentInCol(col, num) && !isPresentInBox(row - row%3, col - col%3, num);
+}
+bool solveSudoku(){
+    int row, col;
+    if (!findEmptyPlace(row, col))
+        return true; //when all places are filled
+    for (int num = 1; num <= 9; num++){ //valid numbers are 1 - 9
+        if(isValidPlace(row, col, num)){ //check validation, if yes, put the number in the grid
+            grid[row][col] = num;
+            if (solveSudoku()) //recursively go for other rooms in the grid
+                return true;
+            grid[row][col] = 0; //turn to unassigned space when conditions are not satisfied
+        }
     }
-    else{
-        sudoku(0,0);
-        // display();
-    }
-    outfile.close();
-    infile.close();
+    return false;
+}
+int main(){
+    if(solveSudoku() == true)
+        sudokuGrid();
+    else
+        cout << "No solution exists";
     return 0;
 }
